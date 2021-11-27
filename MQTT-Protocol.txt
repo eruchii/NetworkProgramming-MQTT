@@ -1,0 +1,29 @@
+- Publisher
+	Command
+		CONNECT
+		PUBLISH <topic> <message>
+	Event
+		CONNACK <connection_id>
+		PUBACK
+- Subscriber
+	Command
+		CONNECT
+		SUBSCRIBE <topic>
+		UNSUBSCRIBE <topic>
+	Event
+		CONNACK <connection_id>
+		SUBACK
+		UNSUBACK
+		PUBLISH <topic> <message>
+- Broker
+	Command
+		CONNACK <connection_id>
+		SUBACK
+		UNSUBACK
+		PUBACK
+		PUBLISH <topic> <message>
+	Event
+		CONNECT
+		PUBLISH <topic> <message>
+		SUBSCRIBE <topic>
+		UNSUBSCRIBE <topic>
