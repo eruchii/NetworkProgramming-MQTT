@@ -16,21 +16,26 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import Models.Message;
 
 
 public class Broker implements Runnable{
-    private Map<String, Set<ClientHandler>> publishers;
+    private final BlockingQueue<Message> messageQueue;
     private Map<String, Set<ClientHandler>> subscribers;
     public Broker(){
-        publishers = new ConcurrentHashMap<String, Set<ClientHandler>>();
-        subscribers = new ConcurrentHashMap<String, Set<ClientHandler>>();
+        this.subscribers = new ConcurrentHashMap<>();
+        this.messageQueue = new LinkedBlockingQueue<>();
     }
     @Override
     public void run() {
         
         ServerSocket listener = null;
-        
+        PublishHandler pub = new PublishHandler(subscribers, messageQueue);
+        new Thread(pub).start();
         try {
             listener = new ServerSocket(9999);
             listener.setReuseAddress(true);
@@ -40,7 +45,7 @@ public class Broker implements Runnable{
                 System.out.println("New connection: "
                                    + clientSocket.getInetAddress()
                                          .getHostAddress());
-                ClientHandler clientSock = new ClientHandler(clientSocket, publishers, subscribers);
+                ClientHandler clientSock = new ClientHandler(clientSocket, subscribers, messageQueue);
                 new Thread(clientSock).start();
             }
         } catch (IOException e) {
@@ -57,6 +62,5 @@ public class Broker implements Runnable{
                 }
             }
         }
-        System.out.println("Bye");
     }
 }

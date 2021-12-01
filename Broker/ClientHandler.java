@@ -8,8 +8,12 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import Models.Message;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,22 +21,20 @@ import java.util.Set;
 
 class ClientHandler implements Runnable {
     private final Socket clientSocket;
-    private Map<String, Set<ClientHandler>> publishers;
     private Map<String, Set<ClientHandler>> subscribers;
+    private final BlockingQueue<Message> messageQueue;
     private List<String> subTopics;
-    private List<String> pubTopics;
-    public ClientHandler(Socket socket, Map<String, Set<ClientHandler>> publishers, Map<String, Set<ClientHandler>> subscribers) {
+    public ClientHandler(Socket socket, Map<String, Set<ClientHandler>> subscribers, BlockingQueue<Message> messageQueue) {
         this.clientSocket = socket;
-        this.publishers = publishers;
         this.subscribers = subscribers;
-        this.subTopics = new ArrayList<String>();
-        this.pubTopics = new ArrayList<String>();
+        this.messageQueue = messageQueue;
+        this.subTopics = new ArrayList<>();
     }
 
     final String FILE_NOT_FOUND = "410 File Not Found";
     final String DOWNLOAD_OK = "210 Download Mode OK";
     final String QUIT = "500 bye";
-    final String HELLO = "200 Hello Client";
+    final String HELLO = "CONNACK";
     final String COMMAND_NOT_FOUND = "400 Command not found";
     private InputStream is = null;
     private OutputStream os = null;
@@ -50,11 +52,11 @@ class ClientHandler implements Runnable {
 		list = subscribers.get(topic);
 		if (list == null)
 		{
-			synchronized (this) // take a smaller lock
+			synchronized (this)
 			{
 				if ((list = subscribers.get(topic)) == null)
 				{
-					list = new CopyOnWriteArraySet<ClientHandler>();
+					list = new CopyOnWriteArraySet<>();
 					subscribers.put(topic, list);
 				}
 			}
@@ -81,6 +83,27 @@ class ClientHandler implements Runnable {
         }
     }
 
+    private boolean pub(String topic, String message){
+        Set<ClientHandler> l = subscribers.get(topic);
+		if (l != null && !l.isEmpty())
+		{
+            Message m = new Message(topic, message);
+			messageQueue.add(m);
+			return true;
+		}
+		return false;
+    }
+
+    public void onRecvMsg(Message msg){
+        try{
+            sendData("PUBLISH " + msg.topic + " " + msg.data.toString());
+        }
+        catch(IOException e){
+
+        }
+        
+    }
+
     @Override
     public void run()
     {
@@ -88,10 +111,8 @@ class ClientHandler implements Runnable {
         try{
             is = clientSocket.getInputStream();
             os = clientSocket.getOutputStream();
-
+            sendData(HELLO);
             while (true) {
-                os.write(HELLO.getBytes());
-                os.flush();
                 byte[] buff = new byte[4096];
                 int cc = is.read(buff);
                 if(cc < 0){
@@ -104,12 +125,24 @@ class ClientHandler implements Runnable {
                     String topic  = command[1];
                     sub(topic);
                     System.out.println(subscribers.get(topic).size());
+                    sendData("SUBACK " + topic);
                     continue;
                 }
                 if (command[0].equals("UNSUBSCRIBE")) {
                     String topic  = command[1];
                     unsub(topic);
                     System.out.println(subscribers.get(topic).size());
+                    sendData("UNSUBACK " + topic);
+                    continue;
+                }
+                if (command[0].equals("PUBLISH")) {
+                    String topic  = command[1];
+                    String message = command[2];
+                    boolean x = pub(topic, message);
+                    if(x){
+                        sendData("PUBACK " + topic + " " + message);
+                    }
+                    System.out.println(messageQueue.size());
                     continue;
                 }
                 os.write(COMMAND_NOT_FOUND.getBytes());
