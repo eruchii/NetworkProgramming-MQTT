@@ -75,7 +75,8 @@ class ClientHandler implements Runnable {
 	}
 
     private void cleanOnDisconnect(){
-        for (String s : pubTopics) {
+
+        for (String s : subTopics) {
             unsub(s);
         }
     }
@@ -117,8 +118,8 @@ class ClientHandler implements Runnable {
         }
         catch (IOException e) {
             System.out.println(e);
-            e.printStackTrace();
-            cleanOnDisconnect();
+            // e.printStackTrace();   
         }
+        cleanOnDisconnect();
     }
 }
