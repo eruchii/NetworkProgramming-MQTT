@@ -3,7 +3,7 @@
 		CONNECT
 		PUBLISH <topic> <message>
 	Event
-		CONNACK <connection_id>
+		CONNACK 
 		PUBACK
 - Subscriber
 	Command
@@ -11,13 +11,13 @@
 		SUBSCRIBE <topic>
 		UNSUBSCRIBE <topic>
 	Event
-		CONNACK <connection_id>
+		CONNACK
 		SUBACK
 		UNSUBACK
 		PUBLISH <topic> <message>
 - Broker
 	Command
-		CONNACK <connection_id>
+		CONNACK
 		SUBACK
 		UNSUBACK
 		PUBACK

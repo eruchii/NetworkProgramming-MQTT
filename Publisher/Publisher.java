@@ -40,11 +40,16 @@ public class Publisher {
         try {
             int count = 0;
             while (true) {
-                os.write("PUBLISH abc abc".getBytes());
+                if(count % 2 == 0){
+                    os.write(("PUBLISH xyz jkasd hajkdhashjkd asdkaj sdak dask d"+String.valueOf(count)).getBytes());
+                }
+                else{
+                    os.write(("PUBLISH abc asikdjlasdj asldj asdl jadlj a dal da"+String.valueOf(count)).getBytes());
+                }
                 os.flush();
-                Thread.sleep(1000);
+                Thread.sleep(100);
                 count++;
-                if(count == 10){
+                if(count == 50){
                     break;
                 }
                 

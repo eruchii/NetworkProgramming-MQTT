@@ -120,7 +120,7 @@ class ClientHandler implements Runnable {
                 }
                 line = new String(buff, StandardCharsets.UTF_8).substring(0, cc);
                 System.out.println(line);
-                String[] command = line.split(" ");
+                String[] command = line.split(" ", 3);
                 if (command[0].equals("SUBSCRIBE")) {
                     String topic  = command[1];
                     sub(topic);
@@ -140,7 +140,7 @@ class ClientHandler implements Runnable {
                     String message = command[2];
                     boolean x = pub(topic, message);
                     if(x){
-                        sendData("PUBACK " + topic + " " + message);
+                        sendData("PUBACK " + topic);
                     }
                     System.out.println(messageQueue.size());
                     continue;
