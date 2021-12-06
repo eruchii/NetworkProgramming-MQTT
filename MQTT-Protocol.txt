@@ -3,7 +3,7 @@
 		CONNECT
 		PUBLISH <topic> <message>
 	Event
-		CONNACK 
+		CONNACK <cliendId> 
 		PUBACK
 - Subscriber
 	Command
@@ -11,13 +11,13 @@
 		SUBSCRIBE <topic>
 		UNSUBSCRIBE <topic>
 	Event
-		CONNACK
+		CONNACK <cliendId> 
 		SUBACK
 		UNSUBACK
 		PUBLISH <topic> <message>
 - Broker
 	Command
-		CONNACK
+		CONNACK <cliendId>
 		SUBACK
 		UNSUBACK
 		PUBACK
@@ -27,3 +27,7 @@
 		PUBLISH <topic> <message>
 		SUBSCRIBE <topic>
 		UNSUBSCRIBE <topic>
+
+Bo sung (neu co the)
+	- Gui lai Publish neu ko nhan dc PUBACK sau x milisec
+	- ???
