@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.UUID;
 
 import Models.Message;
 
@@ -21,14 +22,17 @@ import java.util.Set;
 
 class ClientHandler implements Runnable {
     private final Socket clientSocket;
-    private Map<String, Set<ClientHandler>> subscribers;
+    private Map<String, ClientHandler> clients; 
+    private Map<String, Set<String>> subscribers;
     private final BlockingQueue<Message> messageQueue;
     private List<String> subTopics;
-    public ClientHandler(Socket socket, Map<String, Set<ClientHandler>> subscribers, BlockingQueue<Message> messageQueue) {
+    private String clientId;
+    public ClientHandler(Socket socket, Map<String, ClientHandler> clients, Map<String, Set<String>> subscribers, BlockingQueue<Message> messageQueue) {
         this.clientSocket = socket;
         this.subscribers = subscribers;
         this.messageQueue = messageQueue;
         this.subTopics = new ArrayList<>();
+        this.clients = clients;
     }
 
     final String FILE_NOT_FOUND = "410 File Not Found";
@@ -48,7 +52,7 @@ class ClientHandler implements Runnable {
 
     private void sub(String topic)
 	{
-		Set<ClientHandler> list;
+		Set<String> list;
 		list = subscribers.get(topic);
 		if (list == null)
 		{
@@ -61,17 +65,17 @@ class ClientHandler implements Runnable {
 				}
 			}
 		}
-		list.add(this);
+		list.add(this.clientId);
         subTopics.add(topic);
 	}
 
     private void unsub(String topic)
 	{
-		Set<ClientHandler> list;
+		Set<String> list;
 		list = subscribers.get(topic);
 		if (list != null)
 		{
-            list.remove(this);
+            list.remove(this.clientId);
 		}
         subTopics.remove(topic);
 	}
@@ -81,10 +85,11 @@ class ClientHandler implements Runnable {
         for (String s : subTopics) {
             unsub(s);
         }
+        clients.remove(clientId);
     }
 
     private boolean pub(String topic, String message){
-        Set<ClientHandler> l = subscribers.get(topic);
+        Set<String> l = subscribers.get(topic);
 		if (l != null && !l.isEmpty())
 		{
             Message m = new Message(topic, message);
@@ -99,7 +104,6 @@ class ClientHandler implements Runnable {
             sendData("PUBLISH " + msg.topic + " " + msg.data.toString());
         }
         catch(IOException e){
-
         }
         
     }
@@ -108,10 +112,10 @@ class ClientHandler implements Runnable {
     public void run()
     {
         String line;
+        boolean ready = false;
         try{
             is = clientSocket.getInputStream();
             os = clientSocket.getOutputStream();
-            sendData(HELLO);
             while (true) {
                 byte[] buff = new byte[4096];
                 int cc = is.read(buff);
@@ -120,18 +124,25 @@ class ClientHandler implements Runnable {
                 }
                 line = new String(buff, StandardCharsets.UTF_8).substring(0, cc);
                 System.out.println(line);
+                if(line.equals("CONNECT")){
+                    ready = true;
+                    this.clientId = UUID.randomUUID().toString();
+                    System.out.println(this.clientId);
+                    sendData(HELLO);
+                }
+                if(!ready){
+                    continue;
+                }
                 String[] command = line.split(" ", 3);
                 if (command[0].equals("SUBSCRIBE")) {
                     String topic  = command[1];
                     sub(topic);
-                    System.out.println(subscribers.get(topic).size());
                     sendData("SUBACK " + topic);
                     continue;
                 }
                 if (command[0].equals("UNSUBSCRIBE")) {
                     String topic  = command[1];
                     unsub(topic);
-                    System.out.println(subscribers.get(topic).size());
                     sendData("UNSUBACK " + topic);
                     continue;
                 }
@@ -142,7 +153,6 @@ class ClientHandler implements Runnable {
                     if(x){
                         sendData("PUBACK " + topic);
                     }
-                    System.out.println(messageQueue.size());
                     continue;
                 }
                 os.write(COMMAND_NOT_FOUND.getBytes());
