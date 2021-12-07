@@ -81,11 +81,15 @@ class ClientHandler implements Runnable {
 	}
 
     private void cleanOnDisconnect(){
-
+        if(clientId == null){
+            return;
+        }
+        clients.remove(clientId);
         for (String s : subTopics) {
             unsub(s);
         }
-        clients.remove(clientId);
+
+        
     }
 
     private boolean pub(String topic, String message){
