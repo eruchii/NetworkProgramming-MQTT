@@ -133,6 +133,7 @@ class ClientHandler implements Runnable {
                     this.clientId = UUID.randomUUID().toString();
                     System.out.println(this.clientId);
                     sendData(HELLO);
+                    continue;
                 }
                 if(!ready){
                     continue;
