@@ -40,6 +40,7 @@ public class PublishHandler implements Runnable{
 				continue;
 			}
             for(String clientId: subs){
+                System.out.println(clientId);
                 ClientHandler client = clients.get(clientId);
                 if(client != null){
                     client.onRecvMsg(msg);

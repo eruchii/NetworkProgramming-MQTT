@@ -34,9 +34,6 @@ class ClientHandler implements Runnable {
         this.subTopics = new ArrayList<>();
         this.clients = clients;
     }
-
-    final String FILE_NOT_FOUND = "410 File Not Found";
-    final String DOWNLOAD_OK = "210 Download Mode OK";
     final String QUIT = "500 bye";
     final String HELLO = "CONNACK";
     final String COMMAND_NOT_FOUND = "400 Command not found";
@@ -156,7 +153,7 @@ class ClientHandler implements Runnable {
                     String message = command[2];
                     boolean x = pub(topic, message);
                     if(x){
-                        sendData("PUBACK " + topic);
+                        sendData("PUBACK");
                     }
                     continue;
                 }

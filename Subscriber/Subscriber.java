@@ -38,15 +38,18 @@ public class Subscriber {
         }
         System.err.println("Connected to " + serverHost);
         try {
-            os.write("SUBSCRIBE abc".getBytes());
+            os.write("CONNECT".getBytes());
             os.flush();
+            boolean ready = false;
             while (true) {
                 int recv_bytes = is.read(buff);
                 String resp = new String(buff, StandardCharsets.UTF_8).substring(0, recv_bytes);
                 System.out.println("FROM SERVER: " + resp);
-                if (resp.equals("500 bye")) {
-                    break;
-                }
+                if (resp.startsWith("CONNACK")) {
+                    ready = true;
+                    os.write("SUBSCRIBE temp".getBytes());
+                    os.flush();
+                }                   
             }
             
         } catch (UnknownHostException e) {
