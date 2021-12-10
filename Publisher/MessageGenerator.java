@@ -27,9 +27,9 @@ public class MessageGenerator implements Runnable{
     private void generateMessage() throws IOException{
         try{
             while (true){
-                Thread.sleep(ThreadLocalRandom.current().nextInt(1000));
+                Thread.sleep(ThreadLocalRandom.current().nextInt(5)*1000);
                 Integer temp = ThreadLocalRandom.current().nextInt(1000);
-                String message = "The Temperature is " + String.valueOf(temp);
+                String message = "PUBLISH Weather The Temperature is " + String.valueOf(temp);
                 synchronized (this){
                     messageQueue.put(message);
                 }

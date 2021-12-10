@@ -69,10 +69,21 @@ public class ClientInteractHandler implements Runnable{
                     if (lastSentSuccess){
                         message = messageQueue.take();
                     }
+                    
                     if (!message.equals("")){
+                        if (!lastSentSuccess){
+                            Thread.sleep(1000);
+                        }
+                        System.out.println("Sending publish: "+ message);
                         sendData(message);
                         int byteReceived =is.read(buff);
+                        if (byteReceived < 0){
+                            lastSentSuccess = false;
+                            System.out.print("Read from server failed");
+                            continue;
+                        }
                         String line = new String(buff, StandardCharsets.UTF_8).substring(0, byteReceived);
+                        System.out.print(line);
                         if(line.equals(PUBACK)){
                             lastSentSuccess = true;
                         }
@@ -84,6 +95,7 @@ public class ClientInteractHandler implements Runnable{
             }
             catch(InterruptedIOException e){
                 lastSentSuccess = false;
+                System.out.println("Publish Fail. Receive nothing from server");
             }
             catch(IOException e){
                 e.printStackTrace();

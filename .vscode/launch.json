@@ -15,21 +15,21 @@
             "name": "Launch Server",
             "request": "launch",
             "mainClass": "Broker.Server",
-            "projectName": "NetworkProgramming-MQTT_4e27ef0e"
+            "projectName": "NetworkProgramming-MQTT_34c4e1e5"
         },
         {
             "type": "java",
             "name": "Launch Publisher",
             "request": "launch",
             "mainClass": "Publisher.Publisher",
-            "projectName": "NetworkProgramming-MQTT_4e27ef0e"
+            "projectName": "NetworkProgramming-MQTT_34c4e1e5"
         },
         {
             "type": "java",
             "name": "Launch Subscriber",
             "request": "launch",
             "mainClass": "Subscriber.Subscriber",
-            "projectName": "NetworkProgramming-MQTT_4e27ef0e"
+            "projectName": "NetworkProgramming-MQTT_34c4e1e5"
         }
     ]
 }
