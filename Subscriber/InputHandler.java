@@ -2,7 +2,6 @@ package Subscriber;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import javafx.scene.control.TextArea;
 
@@ -15,6 +14,7 @@ class InputHandler implements Runnable {
     }   
 
     @Override
+    // đọc message từ server và xuất ra cửa sổ
     public void run() {
         byte[] buff = new byte[4096];
         while (true) {
