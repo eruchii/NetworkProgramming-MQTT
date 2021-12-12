@@ -16,6 +16,7 @@ import java.util.UUID;
 import Models.Message;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,14 +26,14 @@ class ClientHandler implements Runnable {
     private Map<String, ClientHandler> clients; 
     private Map<String, Set<String>> subscribers;
     private final BlockingQueue<Message> messageQueue;
-    private List<String> subTopics;
+    private Set<String> subTopics;
     private String clientId;
     public ClientHandler(Socket socket, Map<String, ClientHandler> clients, Map<String, Set<String>> subscribers, BlockingQueue<Message> messageQueue) {
         this.clientSocket = socket;
         this.subscribers = subscribers;
         this.messageQueue = messageQueue;
-        this.subTopics = new ArrayList<>();
         this.clients = clients;
+        this.subTopics =  new HashSet<>();
     }
     final String QUIT = "500 bye";
     final String HELLO = "CONNACK";
@@ -53,7 +54,7 @@ class ClientHandler implements Runnable {
 		list = subscribers.get(topic);
 		if (list == null)
 		{
-			synchronized (this)
+			synchronized (subscribers)
 			{
 				if ((list = subscribers.get(topic)) == null)
 				{
@@ -74,7 +75,13 @@ class ClientHandler implements Runnable {
 		{
             list.remove(this.clientId);
 		}
-        subTopics.remove(topic);
+        try{
+            subTopics.remove(topic);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
 	}
 
     private void cleanOnDisconnect(){
@@ -85,8 +92,6 @@ class ClientHandler implements Runnable {
         for (String s : subTopics) {
             unsub(s);
         }
-
-        
     }
 
     private boolean pub(String topic, String message){
@@ -129,6 +134,9 @@ class ClientHandler implements Runnable {
                     ready = true;
                     this.clientId = UUID.randomUUID().toString();
                     System.out.println(this.clientId);
+                    synchronized(clients){
+                        clients.put(clientId, this);
+                    }
                     sendData(HELLO);
                     continue;
                 }
@@ -162,8 +170,7 @@ class ClientHandler implements Runnable {
             }
         }
         catch (IOException e) {
-            System.out.println(e);
-            // e.printStackTrace();   
+            System.out.println(clientId + " disconnected");
         }
         cleanOnDisconnect();
     }

@@ -11,7 +11,6 @@ public class Server {
 
         Broker broker = new Broker(); 
         new Thread(broker).start();
-        System.out.println("Bye");
     }
 
 }
