@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,12 +30,14 @@ public class Broker implements Runnable{
     }
     @Override
     public void run() {
-        
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Port: ");
+        int port = sc.nextInt();
         ServerSocket listener = null;
         PublishHandler pub = new PublishHandler(clients, subscribers, messageQueue);
         new Thread(pub).start();
         try {
-            listener = new ServerSocket(8888);
+            listener = new ServerSocket(port);
             listener.setReuseAddress(true);
             System.out.println("Server is waiting to accept user...");
             while(true){
