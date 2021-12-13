@@ -28,7 +28,9 @@ class InputHandler implements Runnable {
                 break;
             }
             String resp = new String(buff, StandardCharsets.UTF_8).substring(0, recv_bytes);
-            textArea.appendText("FROM SERVER: " + resp + "\n");
+            synchronized(textArea){
+                textArea.appendText("FROM SERVER: " + resp + "\n");
+            }
         }
     }
 }

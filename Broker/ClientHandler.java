@@ -102,7 +102,7 @@ class ClientHandler implements Runnable {
 			messageQueue.add(m);
 			return true;
 		}
-		return false;
+		return true;
     }
 
     public void onRecvMsg(Message msg){

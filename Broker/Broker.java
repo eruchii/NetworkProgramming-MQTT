@@ -34,7 +34,7 @@ public class Broker implements Runnable{
         PublishHandler pub = new PublishHandler(clients, subscribers, messageQueue);
         new Thread(pub).start();
         try {
-            listener = new ServerSocket(9999);
+            listener = new ServerSocket(8888);
             listener.setReuseAddress(true);
             System.out.println("Server is waiting to accept user...");
             while(true){
