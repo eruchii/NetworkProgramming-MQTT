@@ -98,7 +98,6 @@ public class Subscriber extends Application {
                     @Override
                     public void handle(ActionEvent event){
                         serverHost = ipAdd.getText();
-                        System.out.println(serverHost);
                         port = Integer.parseInt(portText.getText());
                         if(serverThread != null){
                             serverThread.interrupt();
@@ -115,7 +114,6 @@ public class Subscriber extends Application {
                         try {
                             serverThread.join();
                         } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                         if(isConnected){
@@ -177,13 +175,16 @@ public class Subscriber extends Application {
             iThread = new Thread(ih);
             iThread.start();
             isConnected = true;
+            textArea.appendText("Connected to " + serverHost + ":" + String.valueOf(port) + "\n");
 
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + serverHost);
+            // System.err.println("Don't know about host " + serverHost);
+            textArea.appendText("Don't know about host " + serverHost + "\n");
             isConnected = false;
             // System.exit(0);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " + serverHost);
+            // System.err.println("Couldn't get I/O for the connection to " + serverHost);
+            textArea.appendText("Couldn't get I/O for the connection to " + serverHost + "\n");
             isConnected = false;
             // System.exit(0);
         }

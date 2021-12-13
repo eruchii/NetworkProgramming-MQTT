@@ -22,9 +22,11 @@ class InputHandler implements Runnable {
             try {
                 recv_bytes = is.read(buff);
             } catch (IOException e) {
+                textArea.appendText("DISCONNECTED\n");
                 break;
             }
-            if (recv_bytes == 0) {
+            if (recv_bytes <=0 ) {
+                textArea.appendText("DISCONNECTED\n");
                 break;
             }
             String resp = new String(buff, StandardCharsets.UTF_8).substring(0, recv_bytes);
