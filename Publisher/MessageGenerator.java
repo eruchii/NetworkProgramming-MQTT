@@ -1,6 +1,9 @@
 package Publisher;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -9,6 +12,8 @@ public class MessageGenerator implements Runnable{
     private final BlockingQueue<String> messageQueue;
     private final String outOfMessageFlag;
 
+    private List<String> topicList = new ArrayList<String>();
+
     public MessageGenerator(BlockingQueue <String> queue,String _outOfMessageFlag) {
         this.messageQueue = queue;
         this.outOfMessageFlag = _outOfMessageFlag;   
@@ -16,6 +21,7 @@ public class MessageGenerator implements Runnable{
 
     public void run(){
         try{
+            topicList = Arrays.asList("Pressure", "Temperature", "Humidity","Air Quality");
             // try create message
             generateMessage();
         }
@@ -27,9 +33,11 @@ public class MessageGenerator implements Runnable{
     private void generateMessage() throws IOException{
         try{
             while (true){
-                Thread.sleep(ThreadLocalRandom.current().nextInt(5)*1000);
-                Integer temp = ThreadLocalRandom.current().nextInt(1000);
-                String message = "PUBLISH Weather The Temperature is " + String.valueOf(temp);
+                int randomNumber = ThreadLocalRandom.current().nextInt(4);
+                Thread.sleep(randomNumber*1000);
+                Integer temp = ThreadLocalRandom.current().nextInt(100);
+                System.out.println(randomNumber);
+                String message = "PUBLISH " + topicList.get(randomNumber) + " The " + topicList.get(randomNumber) + " is " +    String.valueOf(temp);
                 synchronized (this){
                     messageQueue.put(message);
                 }
@@ -40,4 +48,6 @@ public class MessageGenerator implements Runnable{
         }
 
     }
+
+   
 }

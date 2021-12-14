@@ -19,18 +19,15 @@ public class Publisher {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhap IP: ");
         String serverHost = sc.nextLine();
-        Boolean ready = false;
-        Socket socketOfClient = null;
-        OutputStream os = null;
-        InputStream is = null;
-        byte[] buff = new byte[4096];
+        System.out.print("Nhap Port: ");
+        int port = sc.nextInt();
 
         final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
         // chay thread sinh thong bao
         MessageGenerator messageGenerator = new MessageGenerator(messageQueue, "Out of Message");
         new Thread(messageGenerator).start();
-        ClientInteractHandler clientInteractHandler = new ClientInteractHandler(messageQueue,"Out of Message", serverHost);
+        ClientInteractHandler clientInteractHandler = new ClientInteractHandler(messageQueue,"Out of Message", serverHost,port);
         new Thread(clientInteractHandler).start();
     }
 

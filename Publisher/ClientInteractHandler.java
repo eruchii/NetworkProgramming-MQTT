@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,6 +21,7 @@ public class ClientInteractHandler implements Runnable{
     private final BlockingQueue<String> messageQueue;
     private final String outOfMessageFlag;
     private final String serverSocketAddress;
+    private final int serverPort;
 
     final String FILE_NOT_FOUND = "410 File Not Found";
     final String DOWNLOAD_OK = "210 Download Mode OK";
@@ -33,20 +37,25 @@ public class ClientInteractHandler implements Runnable{
     private Boolean lastSentSuccess = true;
     private String message ="";
 
-    public ClientInteractHandler(BlockingQueue <String> queue, String _outOfMessageFlag, String _serverAddress) {
+    public ClientInteractHandler(BlockingQueue <String> queue, String _outOfMessageFlag, String _serverAddress, int _serverPort) {
         this.messageQueue = queue;
         this.outOfMessageFlag = _outOfMessageFlag;   
         this.serverSocketAddress = _serverAddress;
+        this.serverPort = _serverPort;
     }
 
     @Override
     public void run() {
         try{
-             serverSocket = new Socket(serverSocketAddress,9999);
+             serverSocket = new Socket(serverSocketAddress,serverPort);
              serverSocket.setSoTimeout(5000);
              is = serverSocket.getInputStream();
              os = serverSocket.getOutputStream();
 
+        }
+        catch(ConnectException e){
+            System.err.println("Cant connect to server");
+            System.exit(0);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -59,8 +68,11 @@ public class ClientInteractHandler implements Runnable{
                     os.write(CONNECT.getBytes());
                     os.flush();
                     int byteReceived =is.read(buff);
+                    if (byteReceived < 0){
+                        break;
+                    }
                     String line = new String(buff, StandardCharsets.UTF_8).substring(0, byteReceived);
-                    if(line.equals(HELLO)){
+                    if(line.startsWith(HELLO)){
                         connectToServer = true;
                         System.out.println("Done connect to server");
                     }
@@ -78,12 +90,9 @@ public class ClientInteractHandler implements Runnable{
                         sendData(message);
                         int byteReceived =is.read(buff);
                         if (byteReceived < 0){
-                            lastSentSuccess = false;
-                            System.out.print("Read from server failed");
-                            continue;
+                            break;
                         }
                         String line = new String(buff, StandardCharsets.UTF_8).substring(0, byteReceived);
-                        System.out.print(line);
                         if(line.equals(PUBACK)){
                             lastSentSuccess = true;
                         }
@@ -92,6 +101,10 @@ public class ClientInteractHandler implements Runnable{
                         }
                     }
                 }
+            }
+            catch(SocketException e){
+                System.err.println("Lost connection to server");
+                System.exit(0);
             }
             catch(InterruptedIOException e){
                 lastSentSuccess = false;
