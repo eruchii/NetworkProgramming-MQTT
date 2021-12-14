@@ -17,6 +17,7 @@ import Models.Message;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,23 +76,33 @@ class ClientHandler implements Runnable {
 		{
             list.remove(this.clientId);
 		}
-        try{
-            subTopics.remove(topic);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+        synchronized(subTopics){
+            try{
+                subTopics.remove(topic);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }  
 	}
 
     private void cleanOnDisconnect(){
         if(clientId == null){
             return;
         }
-        clients.remove(clientId);
-        for (String s : subTopics) {
-            unsub(s);
+        synchronized(clients){
+            clients.remove(clientId);
         }
+        for (Iterator<String> iterator = subTopics.iterator(); iterator.hasNext();) {
+            String topic = iterator.next();
+            Set<String> list;
+            list = subscribers.get(topic);
+            if (list != null)
+            {
+                list.remove(this.clientId);
+            }
+            iterator.remove();
+        } 
     }
 
     private boolean pub(String topic, String message){

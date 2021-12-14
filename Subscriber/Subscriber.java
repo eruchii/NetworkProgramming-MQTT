@@ -178,15 +178,11 @@ public class Subscriber extends Application {
             textArea.appendText("Connected to " + serverHost + ":" + String.valueOf(port) + "\n");
 
         } catch (UnknownHostException e) {
-            // System.err.println("Don't know about host " + serverHost);
             textArea.appendText("Don't know about host " + serverHost + "\n");
             isConnected = false;
-            // System.exit(0);
         } catch (IOException e) {
-            // System.err.println("Couldn't get I/O for the connection to " + serverHost);
             textArea.appendText("Couldn't get I/O for the connection to " + serverHost + "\n");
             isConnected = false;
-            // System.exit(0);
         }
     }
 

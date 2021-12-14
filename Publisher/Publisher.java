@@ -15,20 +15,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Publisher {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhap IP: ");
         String serverHost = sc.nextLine();
         System.out.print("Nhap Port: ");
         int port = sc.nextInt();
+        sc.close();
 
         final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
         // chay thread sinh thong bao
-        MessageGenerator messageGenerator = new MessageGenerator(messageQueue, "Out of Message");
-        new Thread(messageGenerator).start();
+        
         ClientInteractHandler clientInteractHandler = new ClientInteractHandler(messageQueue,"Out of Message", serverHost,port);
-        new Thread(clientInteractHandler).start();
+        Thread t1 = new Thread(clientInteractHandler);
+        t1.start();
+        t1.join();
     }
 
 }

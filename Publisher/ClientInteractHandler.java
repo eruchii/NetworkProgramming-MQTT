@@ -53,13 +53,19 @@ public class ClientInteractHandler implements Runnable{
              os = serverSocket.getOutputStream();
 
         }
-        catch(ConnectException e){
-            System.err.println("Cant connect to server");
+        catch (UnknownHostException e) {
+            System.out.println("Don't know about host " + serverSocketAddress + "\n");
             System.exit(0);
+            return;
         }
         catch(IOException e){
-            e.printStackTrace();
+            System.out.println("Couldn't get I/O for the connection to " + serverSocketAddress + "\n");
+            System.exit(0);
+            return;
         }
+        MessageGenerator messageGenerator = new MessageGenerator(messageQueue, "Out of Message");
+        Thread t2 = new Thread(messageGenerator);
+        t2.start();
         while (true){
             try{
                 byte[] buff = new byte[4096];

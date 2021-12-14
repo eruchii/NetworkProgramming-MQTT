@@ -21,7 +21,7 @@ public class MessageGenerator implements Runnable{
 
     public void run(){
         try{
-            topicList = Arrays.asList("Pressure", "Temperature", "Humidity","Air Quality");
+            topicList = Arrays.asList("Pressure", "Temperature", "Humidity","AirQuality");
             // try create message
             generateMessage();
         }
