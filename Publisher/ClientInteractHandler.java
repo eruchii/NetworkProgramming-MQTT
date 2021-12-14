@@ -1,18 +1,17 @@
+/**
+ * 18020037 - Nguyen Hai Long
+ * Ham tuong tac vs server
+ */
 package Publisher;
-// Todo :Pop message from queue, Gui request den server, cho doi puback
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadLocalRandom;
-
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 import java.nio.charset.StandardCharsets;
 
@@ -121,6 +120,16 @@ public class ClientInteractHandler implements Runnable{
             }
             catch(InterruptedException e){
                 Thread.currentThread().interrupt();
+            }
+
+            try{
+                os.close();
+                is.close();
+                serverSocket.close();
+            }
+            catch (IOException e){
+                System.err.println("Error in closing socket");
+                System.exit(0);
             }
         }
 

@@ -1,3 +1,8 @@
+/**
+ * 18020037 _ Nguyen Hai Long
+ * Hàm sinh thông báo random
+ */
+
 package Publisher;
 
 import java.io.IOException;

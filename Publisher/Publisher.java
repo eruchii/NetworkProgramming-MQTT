@@ -6,9 +6,6 @@ package Publisher;
     Start thread khoi tao tin nhan va 1 thread tuong tac vs client
 */
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
