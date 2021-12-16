@@ -122,15 +122,16 @@ public class ClientInteractHandler implements Runnable{
                 Thread.currentThread().interrupt();
             }
 
-            try{
-                os.close();
-                is.close();
-                serverSocket.close();
-            }
-            catch (IOException e){
-                System.err.println("Error in closing socket");
-                System.exit(0);
-            }
+            
+        }
+        try{
+            os.close();
+            is.close();
+            serverSocket.close();
+        }
+        catch (IOException e){
+            System.err.println("Error in closing socket");
+            System.exit(0);
         }
 
     }

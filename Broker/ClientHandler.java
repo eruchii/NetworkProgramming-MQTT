@@ -148,7 +148,7 @@ class ClientHandler implements Runnable {
                     synchronized(clients){
                         clients.put(clientId, this);
                     }
-                    sendData(HELLO);
+                    sendData(HELLO+ " " + this.clientId);
                     continue;
                 }
                 if(!ready){
