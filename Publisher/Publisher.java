@@ -24,8 +24,8 @@ public class Publisher {
 
         // chay thread sinh thong bao
         
-        ClientInteractHandler clientInteractHandler = new ClientInteractHandler(messageQueue,"Out of Message", serverHost,port);
-        Thread t1 = new Thread(clientInteractHandler);
+        ServerInteractHandler serverInteractHandler = new ServerInteractHandler(messageQueue,"Out of Message", serverHost,port);
+        Thread t1 = new Thread(serverInteractHandler);
         t1.start();
         t1.join();
     }
