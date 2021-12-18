@@ -17,7 +17,8 @@ public class MessageGenerator implements Runnable{
     private final BlockingQueue<String> messageQueue;
     private final String outOfMessageFlag;
 
-    private List<String> topicList = new ArrayList<String>();
+    private List<String> sensorList = new ArrayList<String>();
+    private List<String> locationList = new ArrayList<String>();
 
     public MessageGenerator(BlockingQueue <String> queue,String _outOfMessageFlag) {
         this.messageQueue = queue;
@@ -26,7 +27,8 @@ public class MessageGenerator implements Runnable{
 
     public void run(){
         try{
-            topicList = Arrays.asList("Pressure", "Temperature", "Humidity","AirQuality");
+            sensorList = Arrays.asList("Pressure", "Temperature", "Humidity","AirQuality");
+            locationList = Arrays.asList("LocationA", "LocationB", "LocationC","LocationD");
             // try create message
             generateMessage();
         }
@@ -40,9 +42,11 @@ public class MessageGenerator implements Runnable{
             while (true){
                 int randomNumber = ThreadLocalRandom.current().nextInt(4);
                 Thread.sleep(randomNumber*1000);
-                Integer temp = ThreadLocalRandom.current().nextInt(100);
-                System.out.println(randomNumber);
-                String message = "PUBLISH " + topicList.get(randomNumber) + " The " + topicList.get(randomNumber) + " is " +    String.valueOf(temp);
+                int temp = ThreadLocalRandom.current().nextInt(100);
+                int location = ThreadLocalRandom.current().nextInt(locationList.size());
+                int sensor = ThreadLocalRandom.current().nextInt(sensorList.size());
+                String topic = locationList.get(location)+ "/" + sensorList.get(sensor);
+                String message = "PUBLISH " + topic + " The " + sensorList.get(sensor) + " is " +  String.valueOf(temp);
                 synchronized (this){
                     messageQueue.put(message);
                 }

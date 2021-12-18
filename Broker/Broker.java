@@ -23,10 +23,12 @@ public class Broker implements Runnable{
     private final BlockingQueue<Message> messageQueue;
     private Map<String, ClientHandler> clients;
     private Map<String, Set<String>> subscribers;
+    private Map<String, Set<String>> patterns;
     public Broker(){
         this.subscribers = new ConcurrentHashMap<>();
         this.clients = new ConcurrentHashMap<>();
         this.messageQueue = new LinkedBlockingQueue<>();
+        this.patterns = new ConcurrentHashMap<>();
     }
     @Override
     public void run() {
@@ -34,7 +36,7 @@ public class Broker implements Runnable{
         System.out.print("Port: ");
         int port = sc.nextInt();
         ServerSocket listener = null;
-        PublishHandler pub = new PublishHandler(clients, subscribers, messageQueue);
+        PublishHandler pub = new PublishHandler(clients, subscribers, patterns , messageQueue);
         new Thread(pub).start();
         try {
             listener = new ServerSocket(port);
@@ -45,7 +47,7 @@ public class Broker implements Runnable{
                 System.out.println("New connection: "
                                    + clientSocket.getInetAddress()
                                          .getHostAddress());
-                ClientHandler clientSock = new ClientHandler(clientSocket, clients, subscribers, messageQueue);
+                ClientHandler clientSock = new ClientHandler(clientSocket, clients, subscribers, patterns, messageQueue);
                 new Thread(clientSock).start();
             }
         } catch (IOException e) {

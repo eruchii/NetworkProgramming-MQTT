@@ -27,14 +27,22 @@ class ClientHandler implements Runnable {
     private Map<String, ClientHandler> clients; 
     private Map<String, Set<String>> subscribers;
     private final BlockingQueue<Message> messageQueue;
+    private Map<String, Set<String>> patterns;
     private Set<String> subTopics;
+    private Set<String> subPatterns;
     private String clientId;
-    public ClientHandler(Socket socket, Map<String, ClientHandler> clients, Map<String, Set<String>> subscribers, BlockingQueue<Message> messageQueue) {
+    public ClientHandler(Socket socket, Map<String, ClientHandler> clients, 
+            Map<String,Set<String>> subscribers, 
+            Map<String, Set<String>> patterns,
+            BlockingQueue<Message> messageQueue) 
+    {
         this.clientSocket = socket;
         this.subscribers = subscribers;
         this.messageQueue = messageQueue;
+        this.patterns = patterns;
         this.clients = clients;
         this.subTopics =  new HashSet<>();
+        this.subPatterns = new HashSet<>();
     }
     final String QUIT = "500 bye";
     final String HELLO = "CONNACK";
@@ -86,6 +94,40 @@ class ClientHandler implements Runnable {
         }  
 	}
 
+    private void psub(String pattern)
+	{
+		Set<String> list;
+		list = patterns.get(pattern);
+		if (list == null)
+		{
+			synchronized (patterns)
+			{
+				if ((list = patterns.get(pattern)) == null)
+				{
+					list = new CopyOnWriteArraySet<>();
+					patterns.put(pattern, list);
+				}
+			}
+		}
+		list.add(this.clientId);
+        subPatterns.add(pattern);
+	}
+
+    private void punsub(String pattern)
+	{
+		Set<String> list;
+		list = patterns.get(pattern);
+		if (list != null)
+		{
+            list.remove(this.clientId);
+		}
+        try{
+            subPatterns.remove(pattern);
+        }
+        catch (Exception e) {
+        }
+	}
+
     private void cleanOnDisconnect(){
         if(clientId == null){
             return;
@@ -102,18 +144,26 @@ class ClientHandler implements Runnable {
                 list.remove(this.clientId);
             }
             iterator.remove();
+        }
+        for (Iterator<String> iterator = subPatterns.iterator(); iterator.hasNext();) {
+            String pattern = iterator.next();
+            Set<String> list;
+            list = patterns.get(pattern);
+            if (list != null)
+            {
+                list.remove(this.clientId);
+            }
+            iterator.remove();
         } 
     }
 
     private boolean pub(String topic, String message){
-        Set<String> l = subscribers.get(topic);
-		if (l != null && !l.isEmpty())
-		{
-            Message m = new Message(topic, message);
-			messageQueue.add(m);
-			return true;
-		}
-		return true;
+        if(messageQueue.remainingCapacity() <= 0){
+            return false;
+        }
+        Message m = new Message(topic, message);
+        messageQueue.add(m);
+        return true;
     }
 
     public void onRecvMsg(Message msg){
@@ -176,13 +226,31 @@ class ClientHandler implements Runnable {
                     }
                     continue;
                 }
+                if(command[0].equals("PSUBSCRIBE")){
+                    String pattern = command[1];
+                    // pattern = pattern.replace("*", ".*");
+                    psub(pattern);
+                    sendData("PSUBACK " + pattern);
+                    continue;
+                }
+                if(command[0].equals("PUNSUBSCRIBE")){
+                    String pattern = command[1];
+                    // pattern = pattern.replace("*", ".*");
+                    punsub(pattern);
+                    sendData("PUNSUBACK " + pattern);
+                    continue;
+                }
                 os.write(COMMAND_NOT_FOUND.getBytes());
                 os.flush();
             }
         }
         catch (IOException e) {
+        }
+        finally{
+            cleanOnDisconnect();
             System.out.println(clientId + " disconnected");
         }
-        cleanOnDisconnect();
+
+        
     }
 }

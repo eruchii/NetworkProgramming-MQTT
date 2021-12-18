@@ -21,11 +21,7 @@ public class ServerInteractHandler implements Runnable{
     private final String outOfMessageFlag;
     private final String serverSocketAddress;
     private final int serverPort;
-
-    final String FILE_NOT_FOUND = "410 File Not Found";
-    final String DOWNLOAD_OK = "210 Download Mode OK";
     final String CONNECT ="CONNECT";
-    final String QUIT = "500 bye";
     final String HELLO = "CONNACK";
     final String COMMAND_NOT_FOUND = "400 Command not found";
     final String PUBACK = "PUBACK";

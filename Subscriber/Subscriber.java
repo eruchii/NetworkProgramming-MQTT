@@ -141,7 +141,7 @@ public class Subscriber extends Application {
             } else if (k == KeyCode.ENTER) {
                 String cmd = textField.getText();
                 textField.clear();
-                textArea.appendText(cmd + "\n");
+                writeToOutput(cmd);
                 sendToServer(cmd);
             }
 
@@ -165,6 +165,13 @@ public class Subscriber extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+    private void writeToOutput(String content){
+        synchronized(textArea){
+            textArea.appendText(content + "\n");
+        }
+    }
+
     public void startConnect(){
         try {
             socketOfClient = new Socket(serverHost, port);
@@ -175,13 +182,13 @@ public class Subscriber extends Application {
             iThread = new Thread(ih);
             iThread.start();
             isConnected = true;
-            textArea.appendText("Connected to " + serverHost + ":" + String.valueOf(port) + "\n");
+            writeToOutput("Connected to " + serverHost + ":" + String.valueOf(port));
 
         } catch (UnknownHostException e) {
-            textArea.appendText("Don't know about host " + serverHost + "\n");
+            writeToOutput("Don't know about host " + serverHost);
             isConnected = false;
         } catch (IOException e) {
-            textArea.appendText("Couldn't get I/O for the connection to " + serverHost + "\n");
+            writeToOutput("Couldn't get I/O for the connection to " + serverHost);
             isConnected = false;
         }
     }
