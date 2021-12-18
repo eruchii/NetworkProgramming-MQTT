@@ -45,7 +45,7 @@ public class MessageGenerator implements Runnable{
                 int temp = ThreadLocalRandom.current().nextInt(100);
                 int location = ThreadLocalRandom.current().nextInt(locationList.size());
                 int sensor = ThreadLocalRandom.current().nextInt(sensorList.size());
-                String topic = locationList.get(location)+ "/" + sensorList.get(sensor);
+                String topic = "/" + locationList.get(location)+ "/" + sensorList.get(sensor);
                 String message = "PUBLISH " + topic + " The " + sensorList.get(sensor) + " is " +  String.valueOf(temp);
                 synchronized (this){
                     messageQueue.put(message);

@@ -138,7 +138,7 @@ public class PublishHandler implements Runnable {
             for(Map.Entry<String, Set<String>> entry : patterns.entrySet()){
                 String pattern = convertGlobToRegex(entry.getKey());
                 if(msg.topic.matches(pattern)){
-                    System.out.println(pattern + " matches " + msg.topic);
+                    // System.out.println(pattern + " matches " + msg.topic);
                     subs.addAll(entry.getValue());
                 }
             }

@@ -10,24 +10,27 @@
 		CONNECT
 		SUBSCRIBE <topic>
 		UNSUBSCRIBE <topic>
+		PSUBSCRIBE <pattern>
+		PUNSUBSCRIBE <pattern>
 	Event
 		CONNACK <cliendId> 
-		SUBACK
-		UNSUBACK
+		SUBACK <topic>
+		UNSUBACK <topic>
+		PSUBSCRIBE <pattern>
+		PUNSUBSCRIBE <pattern>
 		PUBLISH <topic> <message>
 - Broker
 	Command
 		CONNACK <cliendId>
-		SUBACK
-		UNSUBACK
-		PUBACK
+		SUBACK <topic>
+		UNSUBACK <topic>
+		PSUBSCRIBE <pattern>
+		PUNSUBSCRIBE <pattern>
 		PUBLISH <topic> <message>
 	Event
 		CONNECT
 		PUBLISH <topic> <message>
 		SUBSCRIBE <topic>
 		UNSUBSCRIBE <topic>
-
-Bo sung (neu co the)
-	- Gui lai Publish neu ko nhan dc PUBACK sau x milisec
-	- ???
+		PSUBSCRIBE <pattern>
+		PUNSUBSCRIBE <pattern>
