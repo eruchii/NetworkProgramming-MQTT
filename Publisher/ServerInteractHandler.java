@@ -15,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
 
 import java.nio.charset.StandardCharsets;
 
-public class ClientInteractHandler implements Runnable{
+public class ServerInteractHandler implements Runnable{
     // Queue shared between thread to read Message
     private final BlockingQueue<String> messageQueue;
     private final String outOfMessageFlag;
@@ -36,7 +36,7 @@ public class ClientInteractHandler implements Runnable{
     private Boolean lastSentSuccess = true;
     private String message ="";
 
-    public ClientInteractHandler(BlockingQueue <String> queue, String _outOfMessageFlag, String _serverAddress, int _serverPort) {
+    public ServerInteractHandler(BlockingQueue <String> queue, String _outOfMessageFlag, String _serverAddress, int _serverPort) {
         this.messageQueue = queue;
         this.outOfMessageFlag = _outOfMessageFlag;   
         this.serverSocketAddress = _serverAddress;
